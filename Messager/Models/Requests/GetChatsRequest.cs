@@ -1,5 +1,4 @@
 ﻿using Messager.Helpers;
-using Messager.Models.Entitys;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,11 +9,10 @@ using System.Threading.Tasks;
 
 namespace Messager.Models.Requests
 {
-    public class RegisterRequest : IRequest
+    public class GetChatsRequest : IRequest
     {
-        public User AddedUser { get; set; }
-        public string Message { get; set; }
         public TcpClient Client { get; set; }
+        public string Message { get; set; }
 
         public void Dispose()
         {

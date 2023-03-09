@@ -22,6 +22,8 @@ namespace Messager.Helpers
                     return await CreateRegisterRequestAsync(entity as User);
                 case nameof(LoginRequest):
                     return await CreateLoginRequestAsync(entity as User);
+                case nameof(GetChatsRequest):
+                    return await CreateGetChatsRequestAsync(entity as User);
             }
             throw new FormatException();
         }
@@ -46,6 +48,16 @@ namespace Messager.Helpers
             };
             await newLoginRequest.Client.ConnectAsync(IPAddress.Parse("127.0.0.1"), 8888);
             return newLoginRequest;
+        }
+        private static async Task<GetChatsRequest> CreateGetChatsRequestAsync(User user)
+        {
+            var newGetChatsRequest = new GetChatsRequest()
+            {
+                Client = new TcpClient(),
+                Message = $"GetChats\r\n {JsonSerializer.Serialize(user)}"
+            };
+            await newGetChatsRequest.Client.ConnectAsync(IPAddress.Parse("127.0.0.1"), 8888);
+            return newGetChatsRequest;
         }
     }
 }

@@ -12,6 +12,7 @@ namespace ServerMessager.Models
     public class AppDBContext : DbContext
     {
         public DbSet<User> Users { get; set; }
+        public DbSet<AddedInFriends> AddedInFriends { get; set; }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             base.OnConfiguring(optionsBuilder);

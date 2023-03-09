@@ -69,7 +69,7 @@ namespace Messager.ViewModels
 
             using (var request = (RegisterRequest)await RequestsFactory.CreateRequestAsync<RegisterRequest, User>(addedUser))
             {
-                Response response = await request.SendRequest();
+                Response response = await request.SendRequestAsync();
 
                 if (response.ResponseCode == 200)
                 {
@@ -94,7 +94,7 @@ namespace Messager.ViewModels
 
             using (var request = (LoginRequest)await RequestsFactory.CreateRequestAsync<LoginRequest, User>(loginUser))
             {
-                Response response = await request.SendRequest();
+                Response response = await request.SendRequestAsync();
 
                 if(response.ResponseCode == 200)
                 {

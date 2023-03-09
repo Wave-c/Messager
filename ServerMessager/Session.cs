@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Net.Sockets;
 using System.Text;
@@ -32,6 +33,9 @@ namespace ServerMessager
                     break;
                 case "Login":
                     await LoginAsync(command);
+                    break;
+                case "GetChats":
+                    await GetChatsAsync(command);
                     break;
             }
         }
@@ -82,6 +86,39 @@ namespace ServerMessager
                     };
                     await SendReceiveMessage.SendMessageAsync(Client, JsonSerializer.Serialize(response));
                 }
+            }
+        }
+
+        public async Task GetChatsAsync(Command command)
+        {
+            List<User> chatsUsers = new List<User>();
+            try
+            {
+                using (var dbContext = new AppDBContext())
+                {
+                    List<AddedInFriends> addedInFriends = dbContext.AddedInFriends.Where(x => command.Entity.Id == x.User1
+                        || command.Entity.Id == x.User2).ToList();
+                    if (addedInFriends == null)
+                    {
+                        Response response = new Response()
+                        {
+                            ErrorMessage = "Error: You don't have any chats",
+                            ResponseCode = 406
+                        };
+                        await SendReceiveMessage.SendMessageAsync(Client, JsonSerializer.Serialize(response));
+                        return;
+                    }
+                    foreach (var item in addedInFriends)
+                    {
+                        chatsUsers.Add(dbContext.Users.Where(x => x.Id == item.User1).First());
+                        chatsUsers.Add(dbContext.Users.Where(x => x.Id == item.User2).First());
+                    }
+                    await SendReceiveMessage.SendMessageAsync(Client, JsonSerializer.Serialize(chatsUsers));
+                }
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine(ex);
             }
         }
     }

@@ -11,6 +11,6 @@ namespace Messager.Models.Requests
     {
         TcpClient Client { get; set; }
         string Message { get; set; }
-        Task<Response> SendRequest();
+        Task<Response> SendRequestAsync();
     }
 }

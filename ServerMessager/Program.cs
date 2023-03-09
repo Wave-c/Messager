@@ -28,25 +28,25 @@ namespace ServerMessager
             {
                 while (true)
                 {
-                    var client = await AcceptClientAsync(tcpListener);
+                    await AcceptClientAsync(tcpListener);
+                    await Task.Delay(10);
                 }
             });
             Task.Run(async () =>
             {
                 while (true)
                 {
-                    await NotifyObserversAsync();
+                    NotifyObserversAsync();
                     await Task.Delay(10);
                 }
             });
         }
 
-        async Task<TcpClient> AcceptClientAsync(TcpListener tcpListener)
+        async Task AcceptClientAsync(TcpListener tcpListener)
         {
             var client = await tcpListener.AcceptTcpClientAsync();
-            sessions.Add(new Session() { Client = client});
+            AddObserver(new Session() { Client = client });
             Console.WriteLine($"Новое подключение {client.Client.RemoteEndPoint}");
-            return client;
         }
 
         public void AddObserver(IObserver o)
@@ -64,6 +64,7 @@ namespace ServerMessager
             foreach(var session in sessions)
             {
                 await session.UpdateAsync();
+                RemoveObserver(session);
             }
         }
     }

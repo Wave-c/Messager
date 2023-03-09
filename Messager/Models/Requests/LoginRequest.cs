@@ -21,7 +21,7 @@ namespace Messager.Models.Requests
             Client.Close();
         }
 
-        public async Task<Response> SendRequest()
+        public async Task<Response> SendRequestAsync()
         {
             await SendReceiveMessage.SendMessageAsync(Client, Message);
             string strResponse = await SendReceiveMessage.ReceiveMessageAsync(Client);
