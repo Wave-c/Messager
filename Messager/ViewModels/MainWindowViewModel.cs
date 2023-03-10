@@ -39,14 +39,21 @@ namespace Messager.ViewModels
         {
             using(var request = (GetChatsRequest)await RequestsFactory.CreateRequestAsync<GetChatsRequest, User>(_currentUser))
             {
-                Response response = await request.SendRequestAsync();
-                if(response.ResponseCode == 200)
+                try
                 {
-                    Chats = JsonSerializer.Deserialize<List<User>>(await SendReceiveMessage.ReceiveMessageAsync(request.Client));
+                    Response response = await request.SendRequestAsync();
+                    if (response.ResponseCode == 200)
+                    {
+                        Chats = JsonSerializer.Deserialize<List<User>>(await SendReceiveMessage.ReceiveMessageAsync(request.Client));
+                    }
+                    if (response.ResponseCode == 406)
+                    {
+                        Chats = new List<User>().Append(new User() { Name = response.ErrorMessage });
+                    }
                 }
-                if(response.ResponseCode == 406)
+                catch(Exception ex)
                 {
-                    Chats = new List<User>().Append(new User() { Name = response.ErrorMessage });
+                    MessageBox.Show(ex.Message);
                 }
             }
         }

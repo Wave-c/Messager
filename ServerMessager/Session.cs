@@ -98,7 +98,7 @@ namespace ServerMessager
                 {
                     List<AddedInFriends> addedInFriends = dbContext.AddedInFriends.Where(x => command.Entity.Id == x.User1
                         || command.Entity.Id == x.User2).ToList();
-                    if (addedInFriends == null)
+                    if (addedInFriends.Count == 0)
                     {
                         Response response = new Response()
                         {
