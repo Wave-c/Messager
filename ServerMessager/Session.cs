@@ -22,20 +22,28 @@ namespace ServerMessager
             var message = await SendReceiveMessage.ReceiveMessageAsync(Client);
             var command = new Command()
             {
-                Action = message.Split("\r\n")[0],
-                Entity = JsonSerializer.Deserialize<User>(message.Split("\r\n")[1])
+                Action = message.Split("\r\n")[0]
             };
 
             switch(command.Action)
             {
                 case "Register":
+                    command.Entity = JsonSerializer.Deserialize<User>(message.Split("\r\n")[1]);
                     await RegisterAsync(command);
                     break;
                 case "Login":
+                    command.Entity = JsonSerializer.Deserialize<User>(message.Split("\r\n")[1]);
                     await LoginAsync(command);
                     break;
                 case "GetChats":
+                    command.Entity = JsonSerializer.Deserialize<User>(message.Split("\r\n")[1]);
                     await GetChatsAsync(command);
+                    break;
+                case "Search":
+                    SearchedString searchedUserString = new SearchedString(){
+                        SearchedUserString = message.Split("\r\n ")[1]
+                    };
+                    await SearchAsync(searchedUserString);
                     break;
             }
         }
@@ -70,13 +78,14 @@ namespace ServerMessager
         {
             using(var dbContext = new AppDBContext())
             {
-                if(dbContext.Users.Where(x => x.Name == ((User)command.Entity).Name && x.Password == ((User)command.Entity).Password).First() == null)
+                if(dbContext.Users.Where(x => x.Name == ((User)command.Entity).Name && x.Password == ((User)command.Entity).Password).FirstOrDefault() == null)
                 {
                     Response response = new Response()
                     {
                         ErrorMessage = "Error: This user does not exist, please register",
                         ResponseCode = 401
                     };
+                    await SendReceiveMessage.SendMessageAsync(Client, JsonSerializer.Serialize(response));
                 }
                 else
                 {
@@ -119,6 +128,24 @@ namespace ServerMessager
             catch(Exception ex)
             {
                 Console.WriteLine(ex);
+            }
+        }
+
+        public async Task SearchAsync(SearchedString searchedString)
+        {
+            using (var dbContext = new AppDBContext())
+            {
+                List<User> searchedUsers = dbContext.Users.Where(x => x.Name == searchedString.SearchedUserString).ToList();
+                if(searchedUsers.Count != 0)
+                {
+                    Response response = new Response()
+                    {
+                        ResponseCode = 200,
+                        ResponseObj = JsonSerializer.Serialize(searchedUsers)
+                    };
+                    await SendReceiveMessage.SendMessageAsync(Client, JsonSerializer.Serialize(response));
+                    return;
+                }
             }
         }
     }

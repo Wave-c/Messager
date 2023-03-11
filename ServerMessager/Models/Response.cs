@@ -10,5 +10,6 @@ namespace ServerMessager.Models
     {
         public int ResponseCode { get; set; }
         public string ErrorMessage { get; set; }
+        public string ResponseObj { get; set; }
     }
 }

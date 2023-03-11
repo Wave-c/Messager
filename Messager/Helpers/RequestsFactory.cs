@@ -24,8 +24,33 @@ namespace Messager.Helpers
                     return await CreateLoginRequestAsync(entity as User);
                 case nameof(GetChatsRequest):
                     return await CreateGetChatsRequestAsync(entity as User);
+                case nameof(SearchRequest):
+                    return await CreateSearchRequestAsync(entity as SearchedString);
+                case nameof(AddInFriendsRequest):
+                    return await CreateAddInFriendsRequest(entity as User);
             }
             throw new FormatException();
+        }
+
+        private static async Task<AddInFriendsRequest> CreateAddInFriendsRequest(User user)
+        {
+            var newAddInFriendsRequest = new AddInFriendsRequest()
+            {
+                Client = new TcpClient(),
+                Message = $"AddInFriends\r\n {JsonSerializer.Serialize(user)}"
+            };
+            await newAddInFriendsRequest.Client.ConnectAsync(IPAddress.Parse("127.0.0.1"), 8888);
+            return newAddInFriendsRequest;
+        }
+        private static async Task<SearchRequest> CreateSearchRequestAsync(SearchedString searchedString)
+        {
+            var newSearchRequest = new SearchRequest()
+            {
+                Client = new TcpClient(),
+                Message = $"Search\r\n {searchedString.SearchedUserString}"
+            };
+            await newSearchRequest.Client.ConnectAsync(IPAddress.Parse("127.0.0.1"), 8888);
+            return newSearchRequest;
         }
         private static async Task<RegisterRequest> CreateRegisterRequestAsync(User user)
         {

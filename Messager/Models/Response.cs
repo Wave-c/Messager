@@ -10,6 +10,7 @@ namespace Messager.Models
     {
         public int ResponseCode { get; set; }
         public string ErrorMessage { get; set; }
+        public string ResponseObj { get; set; }
 
         public override string ToString()
         {

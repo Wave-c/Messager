@@ -18,6 +18,9 @@ namespace Messager.ViewModels
     {
         private IEnumerable<User> _chats;
         private User _currentUser;
+        private IEnumerable<User> _searchedUsers;
+        private string _searchedString;
+        private User _selectedUser;
 
         public MainWindowViewModel(User user)
         {
@@ -25,6 +28,34 @@ namespace Messager.ViewModels
             UpdateChatsAsync();
         }
 
+        public User SelectedUser
+        {
+            get => _selectedUser;
+            set
+            {
+                _selectedUser = value;
+                RaisePropertyChanged();
+            }
+        }
+        public string SearchedString
+        {
+            get => _searchedString;
+            set
+            {
+                _searchedString = value;
+                SearchUsersAsync();
+                RaisePropertyChanged();
+            }
+        }
+        public IEnumerable<User> SearchedUsers
+        {
+            get => _searchedUsers;
+            set
+            {
+                _searchedUsers = value;
+                RaisePropertyChanged();
+            }
+        }
         public IEnumerable<User> Chats
         {
             get => _chats;
@@ -54,6 +85,21 @@ namespace Messager.ViewModels
                 catch(Exception ex)
                 {
                     MessageBox.Show(ex.Message);
+                }
+            }
+        }
+        private async Task SearchUsersAsync()
+        {
+            var searchedString = new SearchedString()
+            {
+                SearchedUserString = SearchedString
+            };
+            using (var request = await RequestsFactory.CreateRequestAsync<SearchRequest, SearchedString>(searchedString))
+            {
+                Response response = await request.SendRequestAsync();
+                if(response.ResponseCode == 200)
+                {
+                    SearchedUsers = JsonSerializer.Deserialize<List<User>>(response.ResponseObj);
                 }
             }
         }

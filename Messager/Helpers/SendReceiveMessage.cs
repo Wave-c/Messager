@@ -26,19 +26,13 @@ namespace Messager.Helpers
             var builder = new StringBuilder();
             byte[] buffer = new byte[256];
 
-            try
-            {
+            
                 do
                 {
                     int bytes = await stream.ReadAsync(buffer, 0, buffer.Length);
                     string addingText = Encoding.UTF8.GetString(buffer, 0, bytes);
                     builder.Append(addingText);
                 } while (stream.DataAvailable);
-            }
-            catch(Exception ex)
-            {
-                MessageBox.Show(ex.Message);
-            }
             
 
             return builder.ToString();
