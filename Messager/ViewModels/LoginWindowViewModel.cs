@@ -98,6 +98,7 @@ namespace Messager.ViewModels
 
                 if(response.ResponseCode == 200)
                 {
+                    loginUser.Id = Guid.Parse(response.ResponseObj);
                     EnterToSystem(loginUser);
                 }
                 else

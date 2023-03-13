@@ -3,10 +3,22 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:viewModel="clr-namespace:Messager.ViewModels"
         xmlns:local="clr-namespace:Messager.Views"
         mc:Ignorable="d"
-        Title="UserAccauntWindow" Height="450" Width="400">
+        Title="UserAccauntWindow" Height="450" Width="400"
+        d:DataContext="{d:DesignInstance Type=viewModel:UserAccauntWindowViewModel}">
     <Grid>
-        
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="100"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+        <Image Height="100" Width="100" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="40,40,0,0"/>
+        <TextBlock Grid.Column="1" Text="{Binding Name}"/>
+        <Button Grid.Row="1" Grid.ColumnSpan="2" Height="50" Width="100" Content="Add in friends" Command="{Binding AddInFriendsButtonCommand}"/>
     </Grid>
 </Window>

@@ -11,7 +11,6 @@ namespace ServerMessager.Models.Entitys
     {
         public string Name { get; set; }
         public string Password { get; set; }
-        [NotMapped]
         public Status Status { get; set; }
     }
     public enum Status

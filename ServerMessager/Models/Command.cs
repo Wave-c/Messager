@@ -10,6 +10,6 @@ namespace ServerMessager.Models
     public class Command
     {
         public string Action { get; set; }
-        public Entity Entity { get; set; }
+        public List<Entity> Entitys { get; set; } = new List<Entity>();
     }
 }

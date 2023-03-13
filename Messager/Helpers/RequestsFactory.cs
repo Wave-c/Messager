@@ -13,31 +13,43 @@ namespace Messager.Helpers
 {
     public class RequestsFactory
     {
-        public static async Task<IRequest> CreateRequestAsync<TRequest, TEntity>(TEntity entity) where TRequest : IRequest where TEntity : Entity
+        public static async Task<IRequest> CreateRequestAsync<TRequest, TEntity>(params TEntity[] entity) where TRequest : IRequest where TEntity : Entity
         {
             var type = typeof(TRequest);
             switch(type.Name)
             {
                 case nameof(RegisterRequest):
-                    return await CreateRegisterRequestAsync(entity as User);
+                    return await CreateRegisterRequestAsync(entity[0] as User);
                 case nameof(LoginRequest):
-                    return await CreateLoginRequestAsync(entity as User);
+                    return await CreateLoginRequestAsync(entity[0] as User);
                 case nameof(GetChatsRequest):
-                    return await CreateGetChatsRequestAsync(entity as User);
+                    return await CreateGetChatsRequestAsync(entity[0] as User);
                 case nameof(SearchRequest):
-                    return await CreateSearchRequestAsync(entity as SearchedString);
+                    return await CreateSearchRequestAsync(entity[0] as SearchedString);
                 case nameof(AddInFriendsRequest):
-                    return await CreateAddInFriendsRequest(entity as User);
+                    return await CreateAddInFriendsRequest(entity[0] as User, entity[1] as User);
+                case nameof(CloseRequest):
+                    return await CreateCloseRequest(entity[0] as User);
             }
             throw new FormatException();
         }
 
-        private static async Task<AddInFriendsRequest> CreateAddInFriendsRequest(User user)
+        private static async Task<CloseRequest> CreateCloseRequest(User user)
+        {
+            var newCloseRequest = new CloseRequest()
+            {
+                Client = new TcpClient(),
+                Message = $"Close\r\n {JsonSerializer.Serialize(user)}"
+            };
+            await newCloseRequest.Client.ConnectAsync(IPAddress.Parse("127.0.0.1"), 8888);
+            return newCloseRequest;
+        }
+        private static async Task<AddInFriendsRequest> CreateAddInFriendsRequest(User user, User addingUser)
         {
             var newAddInFriendsRequest = new AddInFriendsRequest()
             {
                 Client = new TcpClient(),
-                Message = $"AddInFriends\r\n {JsonSerializer.Serialize(user)}"
+                Message = $"AddInFriends\r\n {JsonSerializer.Serialize(user)} \r\n {JsonSerializer.Serialize(addingUser)}"
             };
             await newAddInFriendsRequest.Client.ConnectAsync(IPAddress.Parse("127.0.0.1"), 8888);
             return newAddInFriendsRequest;

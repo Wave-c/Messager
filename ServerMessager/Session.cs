@@ -28,15 +28,15 @@ namespace ServerMessager
             switch(command.Action)
             {
                 case "Register":
-                    command.Entity = JsonSerializer.Deserialize<User>(message.Split("\r\n")[1]);
+                    command.Entitys.Add(JsonSerializer.Deserialize<User>(message.Split("\r\n")[1]));
                     await RegisterAsync(command);
                     break;
                 case "Login":
-                    command.Entity = JsonSerializer.Deserialize<User>(message.Split("\r\n")[1]);
+                    command.Entitys.Add(JsonSerializer.Deserialize<User>(message.Split("\r\n")[1]));
                     await LoginAsync(command);
                     break;
                 case "GetChats":
-                    command.Entity = JsonSerializer.Deserialize<User>(message.Split("\r\n")[1]);
+                    command.Entitys.Add(JsonSerializer.Deserialize<User>(message.Split("\r\n")[1]));
                     await GetChatsAsync(command);
                     break;
                 case "Search":
@@ -45,6 +45,57 @@ namespace ServerMessager
                     };
                     await SearchAsync(searchedUserString);
                     break;
+                case "Close":
+                    command.Entitys.Add(JsonSerializer.Deserialize<User>(message.Split("\r\n")[1]));
+                    await CloseAsync(command);
+                    break;
+                case "AddInFriends":
+                    command.Entitys.Add(JsonSerializer.Deserialize<User>(message.Split("\r\n")[1]));
+                    command.Entitys.Add(JsonSerializer.Deserialize<User>(message.Split("\r\n")[2]));
+                    await AddInFriendsAsync(command);
+                    break;
+            }
+        }
+
+        public async Task AddInFriendsAsync(Command command)
+        {
+            using (var dbContext = new AppDBContext())
+            {
+                if(dbContext.AddedInFriends.Where(x=>x.User1 == command.Entitys[0].Id).FirstOrDefault() != null || dbContext.AddedInFriends.Where(x => x.User2 == command.Entitys[0].Id).FirstOrDefault() != null && dbContext.AddedInFriends.Where(x => x.User1 == command.Entitys[1].Id).FirstOrDefault() != null || dbContext.AddedInFriends.Where(x => x.User2 == command.Entitys[1].Id).FirstOrDefault() != null)
+                {
+                    var response = new Response()
+                    {
+                        ResponseCode = 412,
+                        ErrorMessage = "You have already added this user as a friend"
+                    };
+                    await SendReceiveMessage.SendMessageAsync(Client, JsonSerializer.Serialize(response));
+                }
+                else
+                {
+                    await dbContext.AddedInFriends.AddAsync(new AddedInFriends() { Id = Guid.NewGuid(), User1 = command.Entitys[0].Id, User2 = command.Entitys[1].Id });
+                    await dbContext.SaveChangesAsync();
+                    var response = new Response()
+                    {
+                        ResponseCode = 200
+                    };
+                    await SendReceiveMessage.SendMessageAsync(Client, JsonSerializer.Serialize(response));
+                }
+            }
+        }
+
+        public async Task CloseAsync(Command command)
+        {
+            try
+            {
+                using (var dbContext = new AppDBContext())
+                {
+                    dbContext.Users.Where(x => x.Id == ((User)command.Entitys[0]).Id).First().Status = Status.OFFLINE;
+                    await dbContext.SaveChangesAsync();
+                }
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine(ex.Message);
             }
         }
 
@@ -52,9 +103,9 @@ namespace ServerMessager
         {
             using(var dbContext = new AppDBContext())
             {
-                if (dbContext.Users.Where(x => x.Name == ((User)command.Entity).Name).FirstOrDefault() == null)
+                if (dbContext.Users.Where(x => x.Name == ((User)command.Entitys[0]).Name).FirstOrDefault() == null)
                 {
-                    dbContext.Users.Add((User)command.Entity);
+                    dbContext.Users.Add((User)command.Entitys[0]);
                     dbContext.SaveChanges();
                     Response response = new Response()
                     {
@@ -78,7 +129,8 @@ namespace ServerMessager
         {
             using(var dbContext = new AppDBContext())
             {
-                if(dbContext.Users.Where(x => x.Name == ((User)command.Entity).Name && x.Password == ((User)command.Entity).Password).FirstOrDefault() == null)
+                var loginUser = dbContext.Users.Where(x => x.Name == ((User)command.Entitys[0]).Name && x.Password == ((User)command.Entitys[0]).Password).FirstOrDefault();
+                if (loginUser == null)
                 {
                     Response response = new Response()
                     {
@@ -89,9 +141,12 @@ namespace ServerMessager
                 }
                 else
                 {
+                    loginUser.Status = Status.ONLINE;
+                    await dbContext.SaveChangesAsync();
                     Response response = new Response()
                     {
-                        ResponseCode = 200
+                        ResponseCode = 200,
+                        ResponseObj = loginUser.Id.ToString()
                     };
                     await SendReceiveMessage.SendMessageAsync(Client, JsonSerializer.Serialize(response));
                 }
@@ -105,8 +160,8 @@ namespace ServerMessager
             {
                 using (var dbContext = new AppDBContext())
                 {
-                    List<AddedInFriends> addedInFriends = dbContext.AddedInFriends.Where(x => command.Entity.Id == x.User1
-                        || command.Entity.Id == x.User2).ToList();
+                    List<AddedInFriends> addedInFriends = dbContext.AddedInFriends.Where(x => command.Entitys[0].Id == x.User1
+                        || command.Entitys[0].Id == x.User2).ToList();
                     if (addedInFriends.Count == 0)
                     {
                         Response response = new Response()

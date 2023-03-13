@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Messager.Models.Entitys;
+using Messager.ViewModels;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -19,9 +21,10 @@ namespace Messager.Views
     /// </summary>
     public partial class UserAccauntWindow : Window
     {
-        public UserAccauntWindow()
+        public UserAccauntWindow(params User[] users)
         {
             InitializeComponent();
+            DataContext = new UserAccauntWindowViewModel(users);
         }
     }
 }

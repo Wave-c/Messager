@@ -1,4 +1,6 @@
-﻿using Messager.Models.Entitys;
+﻿using Messager.Helpers;
+using Messager.Models.Entitys;
+using Messager.Models.Requests;
 using Messager.ViewModels;
 using System;
 using System.Collections.Generic;
@@ -22,10 +24,21 @@ namespace Messager.Views
     /// </summary>
     public partial class MainWindow : Window
     {
+        private User _currentUser;
         public MainWindow(User user)
         {
             InitializeComponent();
+            _currentUser = user;
             DataContext = new MainWindowViewModel(user);
+        }
+
+        protected override async void OnClosed(EventArgs e)
+        {
+            base.OnClosed(e);
+            using (var request = await RequestsFactory.CreateRequestAsync<CloseRequest, User>(_currentUser))
+            {
+                await request.SendRequestAsync();
+            }
         }
     }
 }

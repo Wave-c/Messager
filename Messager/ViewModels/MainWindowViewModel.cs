@@ -2,6 +2,7 @@
 using Messager.Models;
 using Messager.Models.Entitys;
 using Messager.Models.Requests;
+using Messager.Views;
 using Prism.Commands;
 using Prism.Mvvm;
 using System;
@@ -34,6 +35,7 @@ namespace Messager.ViewModels
             set
             {
                 _selectedUser = value;
+                ShowUserAccauntWindow();
                 RaisePropertyChanged();
             }
         }
@@ -75,7 +77,8 @@ namespace Messager.ViewModels
                     Response response = await request.SendRequestAsync();
                     if (response.ResponseCode == 200)
                     {
-                        Chats = JsonSerializer.Deserialize<List<User>>(await SendReceiveMessage.ReceiveMessageAsync(request.Client));
+                        string a = await SendReceiveMessage.ReceiveMessageAsync(request.Client);
+                        Chats = JsonSerializer.Deserialize<List<User>>(a);
                     }
                     if (response.ResponseCode == 406)
                     {
@@ -102,6 +105,11 @@ namespace Messager.ViewModels
                     SearchedUsers = JsonSerializer.Deserialize<List<User>>(response.ResponseObj);
                 }
             }
+        }
+        private void ShowUserAccauntWindow()
+        {
+            var userAcccauntWindow = new UserAccauntWindow(_currentUser, SelectedUser);
+            userAcccauntWindow.Show();
         }
     }
 }
