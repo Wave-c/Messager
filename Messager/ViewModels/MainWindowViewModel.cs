@@ -77,8 +77,7 @@ namespace Messager.ViewModels
                     Response response = await request.SendRequestAsync();
                     if (response.ResponseCode == 200)
                     {
-                        string a = await SendReceiveMessage.ReceiveMessageAsync(request.Client);
-                        Chats = JsonSerializer.Deserialize<List<User>>(a);
+                        Chats = JsonSerializer.Deserialize<List<User>>(response.ResponseObj);
                     }
                     if (response.ResponseCode == 406)
                     {

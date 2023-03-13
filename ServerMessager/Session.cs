@@ -172,12 +172,24 @@ namespace ServerMessager
                         await SendReceiveMessage.SendMessageAsync(Client, JsonSerializer.Serialize(response));
                         return;
                     }
-                    foreach (var item in addedInFriends)
+                    else
                     {
-                        chatsUsers.Add(dbContext.Users.Where(x => x.Id == item.User1).First());
-                        chatsUsers.Add(dbContext.Users.Where(x => x.Id == item.User2).First());
+                        foreach (var item in addedInFriends)
+                        {
+                            chatsUsers.Add(dbContext.Users.Where(x => x.Id == item.User1).First());
+                            chatsUsers.Add(dbContext.Users.Where(x => x.Id == item.User2).First());
+                            if (command.Entitys[0].Id == item.User1 || command.Entitys[0].Id == item.User2)
+                            {
+                                chatsUsers.Remove(chatsUsers.Where(x => x.Id == command.Entitys[0].Id).First());
+                            }
+                        }
+                        var response = new Response()
+                        {
+                            ResponseCode = 200,
+                            ResponseObj = JsonSerializer.Serialize(chatsUsers)
+                        };
+                        await SendReceiveMessage.SendMessageAsync(Client, JsonSerializer.Serialize(response));
                     }
-                    await SendReceiveMessage.SendMessageAsync(Client, JsonSerializer.Serialize(chatsUsers));
                 }
             }
             catch(Exception ex)
