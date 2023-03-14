@@ -12,6 +12,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Media.Imaging;
 
 namespace Messager.ViewModels
 {
@@ -22,6 +23,9 @@ namespace Messager.ViewModels
         private IEnumerable<User> _searchedUsers;
         private string _searchedString;
         private User _selectedUser;
+        private User _selectedChat;
+        private string _name;
+        private BitmapImage _image;
 
         public MainWindowViewModel(User user)
         {
@@ -29,6 +33,24 @@ namespace Messager.ViewModels
             UpdateChatsAsync();
         }
 
+        public BitmapImage Image
+        {
+            get => _image;
+            set
+            {
+                _image = value;
+                RaisePropertyChanged();
+            }
+        }
+        public string Name
+        {
+            get => _name;
+            set
+            {
+                _name = value;
+                RaisePropertyChanged();
+            }
+        }
         public User SelectedUser
         {
             get => _selectedUser;
@@ -64,6 +86,15 @@ namespace Messager.ViewModels
             set
             {
                 _chats = value;
+                RaisePropertyChanged();
+            }
+        }
+        public User SelectedChat 
+        { 
+            get => _selectedChat;
+            set
+            {
+                _selectedChat = value;
                 RaisePropertyChanged();
             }
         }
