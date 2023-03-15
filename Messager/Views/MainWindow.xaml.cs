@@ -40,5 +40,10 @@ namespace Messager.Views
                 await request.SendRequestAsync();
             }
         }
+
+        private async void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+            await ((MainWindowViewModel)DataContext).UpdateChatsAsync();
+        }
     }
 }

@@ -30,7 +30,12 @@ namespace Messager.ViewModels
         public MainWindowViewModel(User user)
         {
             _currentUser = user;
-            UpdateChatsAsync();
+            SearchedStringChanged += SearchedStringChangedHendler;
+        }
+
+        private async void SearchedStringChangedHendler()
+        {
+            await SearchUsersAsync();
         }
 
         public BitmapImage Image
@@ -67,7 +72,7 @@ namespace Messager.ViewModels
             set
             {
                 _searchedString = value;
-                SearchUsersAsync();
+                SearchedStringChanged?.Invoke();
                 RaisePropertyChanged();
             }
         }
@@ -99,7 +104,9 @@ namespace Messager.ViewModels
             }
         }
 
-        private async Task UpdateChatsAsync()
+        public event Action SearchedStringChanged;
+
+        public async Task UpdateChatsAsync()
         {
             using(var request = (GetChatsRequest)await RequestsFactory.CreateRequestAsync<GetChatsRequest, User>(_currentUser))
             {
