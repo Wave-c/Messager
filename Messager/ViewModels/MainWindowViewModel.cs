@@ -3,17 +3,23 @@ using Messager.Models;
 using Messager.Models.Entitys;
 using Messager.Models.Requests;
 using Messager.Views;
+using Microsoft.Win32;
 using Prism.Commands;
 using Prism.Mvvm;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Drawing.Imaging;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Media.Imaging;
+using Windows.Storage.Streams;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace Messager.ViewModels
 {
@@ -27,11 +33,13 @@ namespace Messager.ViewModels
         private User _selectedChat;
         private string _name;
         private BitmapImage _image;
+        private string _email;
 
         public MainWindowViewModel(User user)
         {
             _currentUser = user;
             SearchedStringChanged += SearchedStringChangedHendler;
+            Name = _currentUser.Name;
         }
 
         public BitmapImage Image
@@ -99,17 +107,70 @@ namespace Messager.ViewModels
                 RaisePropertyChanged();
             }
         }
+        public string Email
+        {
+            get => _email;
+            set
+            {
+                _email = value;
+                RaisePropertyChanged();
+            }
+        }
 
         public event Action SearchedStringChanged;
 
+        private DelegateCommand _changeImageCommand;
+        public DelegateCommand ChangeImageCommand => _changeImageCommand ??= new DelegateCommand(ChangeImageCommand_Execute);
+
+        private async void ChangeImageCommand_Execute()
+        {
+            OpenFileDialog dlg = new OpenFileDialog();
+
+            dlg.DefaultExt = ".png";
+            dlg.Filter = "JPEG Files (*.jpeg)|*.jpeg|PNG Files (*.png)|*.png|JPG Files (*.jpg)|*.jpg";
+
+            bool? result = dlg.ShowDialog();
+            if (result == true)
+            {
+                string filename = dlg.FileName;
+                Image = ConverterBitmapToBitmapImage.BitmapToBitmapImage(new Bitmap(filename));
+                //_currentUser.Image = JsonSerializer.Serialize(Image);
+                using (var stream = new InMemoryRandomAccessStream())
+                {
+                    stream.WriteAsync(ImageBytes.AsBuffer()).Completed = (i, j) => {
+                        stream.Seek(0);
+                        _Image.SetSource(stream);
+                    };
+                }
+                return _Image;
+
+                using (var request = await RequestsFactory.CreateRequestAsync<SetUserImageRequest, User>(_currentUser))
+                {
+                    var response = await request.SendRequestAsync();
+                    if(response.ResponseCode == 200)
+                    {
+                        return;
+                    }
+                    else
+                    {
+                        MessageBox.Show(response.ToString());
+                    }
+                }
+            }
+        }
         public async Task GetUserImageAsync()
         {
             using(var request = (GetUserImageRequest)await RequestsFactory.CreateRequestAsync<GetUserImageRequest, User>(_currentUser))
             {
                 Response response = await request.SendRequestAsync();
-                if(response.ResponseCode == 200)
+
+                if (response.ResponseCode == 200)
                 {
-                    Image = JsonSerializer.Deserialize<BitmapImage>(response.ResponseObj);
+                    var buffer = Encoding.Default.GetBytes(response.ResponseObj);
+                    using (MemoryStream ms = new MemoryStream(buffer))
+                    {
+                        Image = ConverterBitmapToBitmapImage.BitmapToBitmapImage(new Bitmap(ms));
+                    }
                 }
                 if(response.ResponseCode == 404)
                 {

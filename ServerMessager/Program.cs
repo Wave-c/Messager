@@ -3,6 +3,7 @@ using System.Net.Sockets;
 using System.Collections.Generic;
 using System.Text;
 using ServerMessager.Interfaces;
+using ServerMessager.Helpers;
 
 namespace ServerMessager
 {

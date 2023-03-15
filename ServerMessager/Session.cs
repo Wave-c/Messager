@@ -58,7 +58,24 @@ namespace ServerMessager
                     command.Entitys.Add(JsonSerializer.Deserialize<User>(message.Split("\r\n")[1]));
                     await GetUserImageAsync(command);
                     break;
+                case "SetUserImage":
+                    command.Entitys.Add(JsonSerializer.Deserialize<User>(message.Split("\r\n")[1]));
+                    await SetUserImageAsync(command);
+                    break;
+            }
+        }
 
+        public async Task SetUserImageAsync(Command command)
+        {
+            using (var dbContext = new AppDBContext())
+            {
+                dbContext.Users.Where(x => x.Id == command.Entitys[0].Id).First().Image = ((User)command.Entitys[0]).Image;
+                await dbContext.SaveChangesAsync();
+                var response = new Response()
+                {
+                    ResponseCode = 200
+                };
+                await SendReceiveMessage.SendMessageAsync(Client, JsonSerializer.Serialize(response));
             }
         }
 
@@ -69,6 +86,7 @@ namespace ServerMessager
                 string image = dbContext.Users.Where(x => x.Id == command.Entitys[0].Id).First().Image;
                 if(!string.IsNullOrWhiteSpace(image))
                 {
+
                     var response = new Response()
                     {
                         ResponseCode = 200,
@@ -177,7 +195,7 @@ namespace ServerMessager
                     Response response = new Response()
                     {
                         ResponseCode = 200,
-                        ResponseObj = loginUser.Id.ToString()
+                        ResponseObj = JsonSerializer.Serialize(loginUser)
                     };
                     await SendReceiveMessage.SendMessageAsync(Client, JsonSerializer.Serialize(response));
                 }

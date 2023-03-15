@@ -13,6 +13,7 @@ namespace ServerMessager.Models.Entitys
         public string Password { get; set; }
         public Status Status { get; set; }
         public string Image { get; set; }
+        public string Email { get; set; }
     }
     public enum Status
     {
