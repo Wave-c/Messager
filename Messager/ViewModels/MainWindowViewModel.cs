@@ -18,8 +18,6 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media.Imaging;
-using Windows.Storage.Streams;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace Messager.ViewModels
 {
@@ -134,15 +132,8 @@ namespace Messager.ViewModels
             {
                 string filename = dlg.FileName;
                 Image = ConverterBitmapToBitmapImage.BitmapToBitmapImage(new Bitmap(filename));
-                //_currentUser.Image = JsonSerializer.Serialize(Image);
-                using (var stream = new InMemoryRandomAccessStream())
-                {
-                    stream.WriteAsync(ImageBytes.AsBuffer()).Completed = (i, j) => {
-                        stream.Seek(0);
-                        _Image.SetSource(stream);
-                    };
-                }
-                return _Image;
+                
+                
 
                 using (var request = await RequestsFactory.CreateRequestAsync<SetUserImageRequest, User>(_currentUser))
                 {
@@ -163,14 +154,9 @@ namespace Messager.ViewModels
             using(var request = (GetUserImageRequest)await RequestsFactory.CreateRequestAsync<GetUserImageRequest, User>(_currentUser))
             {
                 Response response = await request.SendRequestAsync();
-
-                if (response.ResponseCode == 200)
+                if(response.ResponseCode == 200)
                 {
-                    var buffer = Encoding.Default.GetBytes(response.ResponseObj);
-                    using (MemoryStream ms = new MemoryStream(buffer))
-                    {
-                        Image = ConverterBitmapToBitmapImage.BitmapToBitmapImage(new Bitmap(ms));
-                    }
+                    Image = JsonSerializer.Deserialize<BitmapImage>(response.ResponseObj);
                 }
                 if(response.ResponseCode == 404)
                 {

@@ -86,7 +86,6 @@ namespace ServerMessager
                 string image = dbContext.Users.Where(x => x.Id == command.Entitys[0].Id).First().Image;
                 if(!string.IsNullOrWhiteSpace(image))
                 {
-
                     var response = new Response()
                     {
                         ResponseCode = 200,
@@ -195,7 +194,7 @@ namespace ServerMessager
                     Response response = new Response()
                     {
                         ResponseCode = 200,
-                        ResponseObj = JsonSerializer.Serialize(loginUser)
+                        ResponseObj = loginUser.Id.ToString()
                     };
                     await SendReceiveMessage.SendMessageAsync(Client, JsonSerializer.Serialize(response));
                 }
