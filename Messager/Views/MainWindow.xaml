@@ -61,14 +61,14 @@
                             <RowDefinition Height="100"/>
                             <RowDefinition/>
                         </Grid.RowDefinitions>
-                        <Image/>
+                        <Image Source="{Binding Image}"/>
                         <Grid Grid.Column="1">
                             <Grid.RowDefinitions>
                                 <RowDefinition/>
                                 <RowDefinition/>
                             </Grid.RowDefinitions>
                             <TextBlock Text="Name" Grid.Row="0"/>
-                            <TextBox Text="{Binding Name}" Grid.Row="0" Height="25" VerticalAlignment="Bottom" HorizontalAlignment="Left" Width="200"/>
+                            <TextBox Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" Grid.Row="0" Height="25" VerticalAlignment="Bottom" HorizontalAlignment="Left" Width="200"/>
                         </Grid>
                     </Grid>
                 </TabItem.Content>

@@ -54,6 +54,37 @@ namespace ServerMessager
                     command.Entitys.Add(JsonSerializer.Deserialize<User>(message.Split("\r\n")[2]));
                     await AddInFriendsAsync(command);
                     break;
+                case "GetUserImage":
+                    command.Entitys.Add(JsonSerializer.Deserialize<User>(message.Split("\r\n")[1]));
+                    await GetUserImageAsync(command);
+                    break;
+
+            }
+        }
+
+        public async Task GetUserImageAsync(Command command)
+        {
+            using(var dbContext = new AppDBContext())
+            {
+                string image = dbContext.Users.Where(x => x.Id == command.Entitys[0].Id).First().Image;
+                if(!string.IsNullOrWhiteSpace(image))
+                {
+                    var response = new Response()
+                    {
+                        ResponseCode = 200,
+                        ResponseObj = image
+                    };
+                    await SendReceiveMessage.SendMessageAsync(Client, JsonSerializer.Serialize(response));
+                }
+                else
+                {
+                    var response = new Response()
+                    {
+                        ResponseCode = 404,
+                        ErrorMessage = "This user dont have photo"
+                    };
+                    await SendReceiveMessage.SendMessageAsync(Client, JsonSerializer.Serialize(response));
+                }
             }
         }
 

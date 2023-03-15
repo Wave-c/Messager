@@ -7,6 +7,7 @@ using Prism.Commands;
 using Prism.Mvvm;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
@@ -31,11 +32,6 @@ namespace Messager.ViewModels
         {
             _currentUser = user;
             SearchedStringChanged += SearchedStringChangedHendler;
-        }
-
-        private async void SearchedStringChangedHendler()
-        {
-            await SearchUsersAsync();
         }
 
         public BitmapImage Image
@@ -106,6 +102,21 @@ namespace Messager.ViewModels
 
         public event Action SearchedStringChanged;
 
+        public async Task GetUserImageAsync()
+        {
+            using(var request = (GetUserImageRequest)await RequestsFactory.CreateRequestAsync<GetUserImageRequest, User>(_currentUser))
+            {
+                Response response = await request.SendRequestAsync();
+                if(response.ResponseCode == 200)
+                {
+                    Image = JsonSerializer.Deserialize<BitmapImage>(response.ResponseObj);
+                }
+                if(response.ResponseCode == 404)
+                {
+                    Image = ConverterBitmapToBitmapImage.BitmapToBitmapImage(new Bitmap("..//..//..//Resource/NoPhotoUser.png"));
+                }
+            }
+        }
         public async Task UpdateChatsAsync()
         {
             using(var request = (GetChatsRequest)await RequestsFactory.CreateRequestAsync<GetChatsRequest, User>(_currentUser))
@@ -147,6 +158,10 @@ namespace Messager.ViewModels
         {
             var userAcccauntWindow = new UserAccauntWindow(_currentUser, SelectedUser);
             userAcccauntWindow.Show();
+        }
+        private async void SearchedStringChangedHendler()
+        {
+            await SearchUsersAsync();
         }
     }
 }

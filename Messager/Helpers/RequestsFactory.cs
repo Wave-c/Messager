@@ -30,10 +30,22 @@ namespace Messager.Helpers
                     return await CreateAddInFriendsRequest(entity[0] as User, entity[1] as User);
                 case nameof(CloseRequest):
                     return await CreateCloseRequest(entity[0] as User);
+                case nameof(GetUserImageRequest):
+                    return await CreateGetUserImageRequest(entity[0] as User);
             }
             throw new FormatException();
         }
 
+        private static async Task<GetUserImageRequest> CreateGetUserImageRequest(User user)
+        {
+            var newGetUserImageRequest = new GetUserImageRequest()
+            {
+                Client = new TcpClient(),
+                Message = $"GetUserImage\r\n {JsonSerializer.Serialize(user)}"
+            };
+            await newGetUserImageRequest.Client.ConnectAsync(IPAddress.Parse("127.0.0.1"), 8888);
+            return newGetUserImageRequest;
+        }
         private static async Task<CloseRequest> CreateCloseRequest(User user)
         {
             var newCloseRequest = new CloseRequest()
