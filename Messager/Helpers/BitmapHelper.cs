@@ -54,7 +54,11 @@ namespace Messager.Helpers
                 Response response = await request.SendRequestAsync();
                 if (response.ResponseCode == 200)
                 {
-                    return JsonSerializer.Deserialize<BitmapImage>(response.ResponseObj);
+                    //Bitmap img2;
+                    //using (var ms = new MemoryStream( response.ResponseObj))
+                    //{
+                    //    img2 = new Bitmap(ms);
+                    //}
                 }
                 if (response.ResponseCode == 404)
                 {

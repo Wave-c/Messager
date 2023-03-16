@@ -118,38 +118,42 @@ namespace Messager.ViewModels
 
         public event Action SearchedStringChanged;
 
-        //private DelegateCommand _changeImageCommand;
-        //public DelegateCommand ChangeImageCommand => _changeImageCommand ??= new DelegateCommand(ChangeImageCommand_Execute);
+        private DelegateCommand _changeImageCommand;
+        public DelegateCommand ChangeImageCommand => _changeImageCommand ??= new DelegateCommand(ChangeImageCommand_Execute);
 
-        //private async void ChangeImageCommand_Execute()
-        //{
-        //    OpenFileDialog dlg = new OpenFileDialog();
+        private async void ChangeImageCommand_Execute()
+        {
+            OpenFileDialog dlg = new OpenFileDialog();
 
-        //    dlg.DefaultExt = ".png";
-        //    dlg.Filter = "JPEG Files (*.jpeg)|*.jpeg|PNG Files (*.png)|*.png|JPG Files (*.jpg)|*.jpg";
+            dlg.DefaultExt = ".png";
+            dlg.Filter = "JPEG Files (*.jpeg)|*.jpeg|PNG Files (*.png)|*.png|JPG Files (*.jpg)|*.jpg";
 
-        //    bool? result = dlg.ShowDialog();
-        //    if (result == true)
-        //    {
-        //        string filename = dlg.FileName;
-        //        Image = ConverterBitmapToBitmapImage.BitmapToBitmapImage(new Bitmap(filename));
+            bool? result = dlg.ShowDialog();
+            if (result == true)
+            {
+                string filename = dlg.FileName;
+                Image = BitmapHelper.BitmapToBitmapImage(new Bitmap(filename));
 
-        //        //TODO: както сериализовать BitmapImage
+                //TODO: както сериализовать BitmapImage
+                ImageConverter converter = new ImageConverter();
+                byte[] bTemp = (byte[])converter.ConvertTo(BitmapHelper.FromBitmapImagetoBitmap(Image), typeof(byte[]));
+                _currentUser.Image = bTemp;
+                
 
-        //        using (var request = await RequestsFactory.CreateRequestAsync<SetUserImageRequest, User>(_currentUser))
-        //        {
-        //            var response = await request.SendRequestAsync();
-        //            if(response.ResponseCode == 200)
-        //            {
-        //                await GetUserImageAsync();
-        //            }
-        //            else
-        //            {
-        //                MessageBox.Show(response.ToString());
-        //            }
-        //        }
-        //    }
-        //}
+                using (var request = await RequestsFactory.CreateRequestAsync<SetUserImageRequest, User>(_currentUser))
+                {
+                    var response = await request.SendRequestAsync();
+                    if (response.ResponseCode == 200)
+                    {
+                        await BitmapHelper.GetUserImageAsync(_currentUser);
+                    }
+                    else
+                    {
+                        MessageBox.Show(response.ToString());
+                    }
+                }
+            }
+        }
         public async Task UpdateChatsAsync()
         {
             using(var request = (GetChatsRequest)await RequestsFactory.CreateRequestAsync<GetChatsRequest, User>(_currentUser))
@@ -194,7 +198,14 @@ namespace Messager.ViewModels
         }
         private async void SearchedStringChangedHendler()
         {
-            await SearchUsersAsync();
+            try
+            {
+                await SearchUsersAsync();
+            }
+            catch
+            {
+
+            }
         }
     }
 }

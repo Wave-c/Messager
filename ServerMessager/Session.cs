@@ -81,28 +81,28 @@ namespace ServerMessager
 
         public async Task GetUserImageAsync(Command command)
         {
-            using(var dbContext = new AppDBContext())
-            {
-                string image = dbContext.Users.Where(x => x.Id == command.Entitys[0].Id).First().Image;
-                if(!string.IsNullOrWhiteSpace(image))
-                {
-                    var response = new Response()
-                    {
-                        ResponseCode = 200,
-                        ResponseObj = image
-                    };
-                    await SendReceiveMessage.SendMessageAsync(Client, JsonSerializer.Serialize(response));
-                }
-                else
-                {
-                    var response = new Response()
-                    {
-                        ResponseCode = 404,
-                        ErrorMessage = "This user dont have photo"
-                    };
-                    await SendReceiveMessage.SendMessageAsync(Client, JsonSerializer.Serialize(response));
-                }
-            }
+            //using(var dbContext = new AppDBContext())
+            //{
+            //    //string image = dbContext.Users.Where(x => x.Id == command.Entitys[0].Id).First().Image;
+            //    if(!string.IsNullOrWhiteSpace(image))
+            //    {
+            //        var response = new Response()
+            //        {
+            //            ResponseCode = 200,
+            //            ResponseObj = image
+            //        };
+            //        await SendReceiveMessage.SendMessageAsync(Client, JsonSerializer.Serialize(response));
+            //    }
+            //    else
+            //    {
+            //        var response = new Response()
+            //        {
+            //            ResponseCode = 404,
+            //            ErrorMessage = "This user dont have photo"
+            //        };
+            //        await SendReceiveMessage.SendMessageAsync(Client, JsonSerializer.Serialize(response));
+            //    }
+            //}
         }
 
         public async Task AddInFriendsAsync(Command command)
