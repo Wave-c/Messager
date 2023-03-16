@@ -18,6 +18,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media.Imaging;
+using Windows.Storage.Streams;
 
 namespace Messager.ViewModels
 {
@@ -117,53 +118,38 @@ namespace Messager.ViewModels
 
         public event Action SearchedStringChanged;
 
-        private DelegateCommand _changeImageCommand;
-        public DelegateCommand ChangeImageCommand => _changeImageCommand ??= new DelegateCommand(ChangeImageCommand_Execute);
+        //private DelegateCommand _changeImageCommand;
+        //public DelegateCommand ChangeImageCommand => _changeImageCommand ??= new DelegateCommand(ChangeImageCommand_Execute);
 
-        private async void ChangeImageCommand_Execute()
-        {
-            OpenFileDialog dlg = new OpenFileDialog();
+        //private async void ChangeImageCommand_Execute()
+        //{
+        //    OpenFileDialog dlg = new OpenFileDialog();
 
-            dlg.DefaultExt = ".png";
-            dlg.Filter = "JPEG Files (*.jpeg)|*.jpeg|PNG Files (*.png)|*.png|JPG Files (*.jpg)|*.jpg";
+        //    dlg.DefaultExt = ".png";
+        //    dlg.Filter = "JPEG Files (*.jpeg)|*.jpeg|PNG Files (*.png)|*.png|JPG Files (*.jpg)|*.jpg";
 
-            bool? result = dlg.ShowDialog();
-            if (result == true)
-            {
-                string filename = dlg.FileName;
-                Image = ConverterBitmapToBitmapImage.BitmapToBitmapImage(new Bitmap(filename));
-                
-                
+        //    bool? result = dlg.ShowDialog();
+        //    if (result == true)
+        //    {
+        //        string filename = dlg.FileName;
+        //        Image = ConverterBitmapToBitmapImage.BitmapToBitmapImage(new Bitmap(filename));
 
-                using (var request = await RequestsFactory.CreateRequestAsync<SetUserImageRequest, User>(_currentUser))
-                {
-                    var response = await request.SendRequestAsync();
-                    if(response.ResponseCode == 200)
-                    {
-                        return;
-                    }
-                    else
-                    {
-                        MessageBox.Show(response.ToString());
-                    }
-                }
-            }
-        }
-        public async Task GetUserImageAsync()
-        {
-            using(var request = (GetUserImageRequest)await RequestsFactory.CreateRequestAsync<GetUserImageRequest, User>(_currentUser))
-            {
-                Response response = await request.SendRequestAsync();
-                if(response.ResponseCode == 200)
-                {
-                    Image = JsonSerializer.Deserialize<BitmapImage>(response.ResponseObj);
-                }
-                if(response.ResponseCode == 404)
-                {
-                    Image = ConverterBitmapToBitmapImage.BitmapToBitmapImage(new Bitmap("..//..//..//Resource/NoPhotoUser.png"));
-                }
-            }
-        }
+        //        //TODO: както сериализовать BitmapImage
+
+        //        using (var request = await RequestsFactory.CreateRequestAsync<SetUserImageRequest, User>(_currentUser))
+        //        {
+        //            var response = await request.SendRequestAsync();
+        //            if(response.ResponseCode == 200)
+        //            {
+        //                await GetUserImageAsync();
+        //            }
+        //            else
+        //            {
+        //                MessageBox.Show(response.ToString());
+        //            }
+        //        }
+        //    }
+        //}
         public async Task UpdateChatsAsync()
         {
             using(var request = (GetChatsRequest)await RequestsFactory.CreateRequestAsync<GetChatsRequest, User>(_currentUser))

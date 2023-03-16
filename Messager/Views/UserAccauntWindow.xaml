@@ -1,4 +1,5 @@
 ﻿<Window x:Class="Messager.Views.UserAccauntWindow"
+        Loaded="Window_Loaded"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -17,7 +18,11 @@
             <RowDefinition Height="100"/>
             <RowDefinition/>
         </Grid.RowDefinitions>
-        <Image Height="100" Width="100" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="40,40,0,0"/>
+        <Ellipse Width="100" Height="100">
+            <Ellipse.Fill>
+                <ImageBrush ImageSource="{Binding Image}" Stretch="UniformToFill"/>
+            </Ellipse.Fill>
+        </Ellipse>
         <TextBlock Grid.Column="1" Text="{Binding Name}"/>
         <Button Grid.Row="1" Grid.ColumnSpan="2" Height="50" Width="100" Content="Add in friends" Command="{Binding AddInFriendsButtonCommand}"/>
     </Grid>

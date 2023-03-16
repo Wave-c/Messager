@@ -61,7 +61,8 @@
                             <RowDefinition Height="100"/>
                             <RowDefinition/>
                         </Grid.RowDefinitions>
-                        <Button Command="{Binding ChangeImageCommand}">
+                        <Button>
+                            <!--Command="{Binding ChangeImageCommand}"-->
                             <Button.Template>
                                 <ControlTemplate>
                                     <Ellipse Width="100" Height="100">

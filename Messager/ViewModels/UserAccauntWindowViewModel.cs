@@ -9,6 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Media.Imaging;
 
 namespace Messager.ViewModels
 {
@@ -17,6 +18,7 @@ namespace Messager.ViewModels
         private string _name;
         private User _currentUser;
         private User _addingUser;
+        private BitmapImage _image;
 
         public UserAccauntWindowViewModel(params User[] user)
         {
@@ -25,6 +27,15 @@ namespace Messager.ViewModels
             _addingUser = user[1];
         }
 
+        public BitmapImage Image
+        {
+            get => _image;
+            set
+            {
+                _image = value;
+                RaisePropertyChanged();
+            }
+        }
         public string Name
         {
             get => _name;

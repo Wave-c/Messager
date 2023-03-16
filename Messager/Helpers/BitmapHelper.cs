@@ -9,12 +9,16 @@ using System.Windows;
 using System.Windows.Media.Imaging;
 using System.Drawing.Imaging;
 using System.IO;
+using Messager.Models.Requests;
+using System.Text.Json;
+using Messager.Models;
+using Messager.Models.Entitys;
 
 namespace Messager.Helpers
 {
-    public static class ConverterBitmapToBitmapImage
+    public static class BitmapHelper
     {
-        public static BitmapImage BitmapToBitmapImage(this Bitmap bitmap)
+        public static BitmapImage BitmapToBitmapImage(Bitmap bitmap)
         {
             using (var memory = new MemoryStream())
             {
@@ -33,8 +37,6 @@ namespace Messager.Helpers
         }
         public static Bitmap FromBitmapImagetoBitmap(BitmapImage bitmapImage)
         {
-            // BitmapImage bitmapImage = new BitmapImage(new Uri("../Images/test.png", UriKind.Relative));
-
             using (MemoryStream outStream = new MemoryStream())
             {
                 BitmapEncoder enc = new BmpBitmapEncoder();
@@ -43,6 +45,22 @@ namespace Messager.Helpers
                 Bitmap bitmap = new Bitmap(outStream);
 
                 return new Bitmap(bitmap);
+            }
+        }
+        public static async Task<BitmapImage> GetUserImageAsync(User currentUser)
+        {
+            using (var request = (GetUserImageRequest)await RequestsFactory.CreateRequestAsync<GetUserImageRequest, User>(currentUser))
+            {
+                Response response = await request.SendRequestAsync();
+                if (response.ResponseCode == 200)
+                {
+                    return JsonSerializer.Deserialize<BitmapImage>(response.ResponseObj);
+                }
+                if (response.ResponseCode == 404)
+                {
+                    return BitmapToBitmapImage(new Bitmap("..//..//..//Resource/NoPhotoUser.png"));
+                }
+                throw new Exception();
             }
         }
     }

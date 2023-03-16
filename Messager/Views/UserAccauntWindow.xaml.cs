@@ -1,4 +1,5 @@
-﻿using Messager.Models.Entitys;
+﻿using Messager.Helpers;
+using Messager.Models.Entitys;
 using Messager.ViewModels;
 using System;
 using System.Collections.Generic;
@@ -21,10 +22,17 @@ namespace Messager.Views
     /// </summary>
     public partial class UserAccauntWindow : Window
     {
+        private User _addingUser;
         public UserAccauntWindow(params User[] users)
         {
             InitializeComponent();
+            _addingUser = users[1];
             DataContext = new UserAccauntWindowViewModel(users);
+        }
+
+        private async void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+            ((UserAccauntWindowViewModel)DataContext).Image = await BitmapHelper.GetUserImageAsync(_addingUser);
         }
     }
 }
