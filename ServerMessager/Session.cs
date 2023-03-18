@@ -24,58 +24,66 @@ namespace ServerMessager
             {
                 Action = message.Split("\r\n")[0]
             };
-
-            switch(command.Action)
+            try
             {
-                case "Register":
-                    command.Entitys.Add(JsonSerializer.Deserialize<User>(message.Split("\r\n")[1]));
-                    await RegisterAsync(command);
-                    break;
-                case "Login":
-                    command.Entitys.Add(JsonSerializer.Deserialize<User>(message.Split("\r\n")[1]));
-                    await LoginAsync(command);
-                    break;
-                case "GetChats":
-                    command.Entitys.Add(JsonSerializer.Deserialize<User>(message.Split("\r\n")[1]));
-                    await GetChatsAsync(command);
-                    break;
-                case "Search":
-                    SearchedString searchedUserString = new SearchedString(){
-                        SearchedUserString = message.Split("\r\n ")[1]
-                    };
-                    await SearchAsync(searchedUserString);
-                    break;
-                case "Close":
-                    command.Entitys.Add(JsonSerializer.Deserialize<User>(message.Split("\r\n")[1]));
-                    await CloseAsync(command);
-                    break;
-                case "AddInFriends":
-                    command.Entitys.Add(JsonSerializer.Deserialize<User>(message.Split("\r\n")[1]));
-                    command.Entitys.Add(JsonSerializer.Deserialize<User>(message.Split("\r\n")[2]));
-                    await AddInFriendsAsync(command);
-                    break;
-                case "GetUserImage":
-                    command.Entitys.Add(JsonSerializer.Deserialize<User>(message.Split("\r\n")[1]));
-                    await GetUserImageAsync(command);
-                    break;
-                case "SetUserImage":
-                    command.Entitys.Add(JsonSerializer.Deserialize<User>(message.Split("\r\n")[1]));
-                    await SetUserImageAsync(command);
-                    break;
-                case "DeleteFromFriends":
-                    command.Entitys.Add(JsonSerializer.Deserialize<User>(message.Split("\r\n")[1]));
-                    command.Entitys.Add(JsonSerializer.Deserialize<User>(message.Split("\r\n")[2]));
-                    await DeleteFromFriendsAsync(command);
-                    break;
-                case "SendMessage":
-                    command.Entitys.Add(JsonSerializer.Deserialize<Message>(message.Split("\r\n")[1]));
-                    await SendMessageAsync(command);
-                    break;
-                case "ReceiveMessage":
-                    command.Entitys.Add(JsonSerializer.Deserialize<User>(message.Split("\r\n")[1]));
-                    command.Entitys.Add(JsonSerializer.Deserialize<User>(message.Split("\r\n")[2]));
-                    await ReceiveMessageAsync(command);
-                    break;
+
+                switch (command.Action)
+                {
+                    case "Register":
+                        command.Entitys.Add(JsonSerializer.Deserialize<User>(message.Split("\r\n")[1]));
+                        await RegisterAsync(command);
+                        break;
+                    case "Login":
+                        command.Entitys.Add(JsonSerializer.Deserialize<User>(message.Split("\r\n")[1]));
+                        await LoginAsync(command);
+                        break;
+                    case "GetChats":
+                        command.Entitys.Add(JsonSerializer.Deserialize<User>(message.Split("\r\n")[1]));
+                        await GetChatsAsync(command);
+                        break;
+                    case "Search":
+                        SearchedString searchedUserString = new SearchedString()
+                        {
+                            SearchedUserString = message.Split("\r\n ")[1]
+                        };
+                        await SearchAsync(searchedUserString);
+                        break;
+                    case "Close":
+                        command.Entitys.Add(JsonSerializer.Deserialize<User>(message.Split("\r\n")[1]));
+                        await CloseAsync(command);
+                        break;
+                    case "AddInFriends":
+                        command.Entitys.Add(JsonSerializer.Deserialize<User>(message.Split("\r\n")[1]));
+                        command.Entitys.Add(JsonSerializer.Deserialize<User>(message.Split("\r\n")[2]));
+                        await AddInFriendsAsync(command);
+                        break;
+                    case "GetUserImage":
+                        command.Entitys.Add(JsonSerializer.Deserialize<User>(message.Split("\r\n")[1]));
+                        await GetUserImageAsync(command);
+                        break;
+                    case "SetUserImage":
+                        command.Entitys.Add(JsonSerializer.Deserialize<User>(message.Split("\r\n")[1]));
+                        await SetUserImageAsync(command);
+                        break;
+                    case "DeleteFromFriends":
+                        command.Entitys.Add(JsonSerializer.Deserialize<User>(message.Split("\r\n")[1]));
+                        command.Entitys.Add(JsonSerializer.Deserialize<User>(message.Split("\r\n")[2]));
+                        await DeleteFromFriendsAsync(command);
+                        break;
+                    case "SendMessage":
+                        command.Entitys.Add(JsonSerializer.Deserialize<Message>(message.Split("\r\n")[1]));
+                        await SendMessageAsync(command);
+                        break;
+                    case "ReceiveMessage":
+                        command.Entitys.Add(JsonSerializer.Deserialize<User>(message.Split("\r\n")[1]));
+                        command.Entitys.Add(JsonSerializer.Deserialize<User>(message.Split("\r\n")[2]));
+                        await ReceiveMessageAsync(command);
+                        break;
+                }
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine(ex.Message);
             }
         }
 

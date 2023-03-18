@@ -18,11 +18,11 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media.Imaging;
-
+using System.Windows.Threading;
 
 namespace Messager.ViewModels
 {
-    class MainWindowViewModel : BindableBase
+    public class MainWindowViewModel : BindableBase
     {
         private IEnumerable<User> _chats;
         private User _currentUser;
@@ -33,11 +33,13 @@ namespace Messager.ViewModels
         private string _name;
         private BitmapImage _image;
         private string _email;
+        private string _writedText;
 
         public MainWindowViewModel(User user)
         {
             _currentUser = user;
             SearchedStringChanged += SearchedStringChangedHendler;
+            SelectedChatChanged += SelectedChatChangetHendler;
             Name = _currentUser.Name;
         }
 
@@ -103,6 +105,7 @@ namespace Messager.ViewModels
             set
             {
                 _selectedChat = value;
+                SelectedChatChanged?.Invoke();
                 RaisePropertyChanged();
             }
         }
@@ -115,34 +118,17 @@ namespace Messager.ViewModels
                 RaisePropertyChanged();
             }
         }
-
-
-
-
-        private string _tempTBlockText;
-        public string TempTBlockText
+        public string WritedText
         {
-            get => _tempTBlockText;
+            get => _writedText;
             set
             {
-                _tempTBlockText = value;
-                RaisePropertyChanged();
-            }
-        }
-        private string _tempTBoxText;
-        public string TempTBoxText
-        {
-            get => _tempTBoxText;
-            set
-            {
-                _tempTBoxText = value;
+                _writedText = value;
                 RaisePropertyChanged();
             }
         }
 
-
-
-
+        public event Action SelectedChatChanged;
         public event Action SearchedStringChanged;
 
         private DelegateCommand _changeImageCommand;
@@ -158,25 +144,25 @@ namespace Messager.ViewModels
                 var response = await request.SendRequestAsync();
                 if(response.ResponseCode == 200)
                 {
-
+                    ((ChatUCViewModel)SelectedChat.ChatUC.DataContext).Messages = JsonSerializer.Deserialize<List<Message>>(response.ResponseObj);
                 }
             }
         }
-        private async void SendMessageCommand_Execute()
+        public async void SendMessageCommand_Execute()
         {
             Message message = new Message()
             {
                 Id = Guid.NewGuid(),
                 From = _currentUser.Id,
                 To = SelectedChat.Id,
-                Information = TempTBoxText
+                Information = ((ChatUCViewModel)SelectedChat.ChatUC.DataContext).WritedText
             };
             using (var request = await RequestsFactory.CreateRequestAsync<SendMessageRequest, Message>(message))
             {
                 var response = await request.SendRequestAsync();
                 if(response.ResponseCode == 200)
                 {
-                    TempTBoxText = "";
+                    ((ChatUCViewModel)SelectedChat.ChatUC.DataContext).WritedText = "";
                 }
             }
         }
@@ -264,6 +250,18 @@ namespace Messager.ViewModels
             {
 
             }
+        }
+        private async void SelectedChatChangetHendler()
+        {
+            Task.Run(async () =>
+            {
+                while(true)
+                {
+                    await ReceiveMessageAsync();
+                    await Task.Delay(500);
+                }
+            });
+            
         }
     }
 }

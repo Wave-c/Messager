@@ -21,10 +21,12 @@ namespace Messager.Views
     /// </summary>
     public partial class ChatUC : UserControl
     {
+        public ChatUCViewModel ChatUCViewModel { get; set; }
         public ChatUC()
         {
             InitializeComponent();
             DataContext = new ChatUCViewModel();
+            ChatUCViewModel = ((ChatUCViewModel)DataContext);
         }
     }
 }

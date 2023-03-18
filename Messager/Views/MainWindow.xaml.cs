@@ -27,8 +27,8 @@ namespace Messager.Views
         private User _currentUser;
         public MainWindow(User user)
         {
-            InitializeComponent();
             _currentUser = user;
+            InitializeComponent();
             DataContext = new MainWindowViewModel(user);
         }
 
