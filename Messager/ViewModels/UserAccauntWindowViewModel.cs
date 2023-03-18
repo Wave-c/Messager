@@ -48,6 +48,20 @@ namespace Messager.ViewModels
 
         private DelegateCommand _addInFriendsButtonCommand;
         public DelegateCommand AddInFriendsButtonCommand => _addInFriendsButtonCommand ??= new DelegateCommand(AddInFriendsButtonCommand_Execute, AddInFriendsButtonCommand_CanExecute);
+        private DelegateCommand _deleteFromFriendsButtonCommand;
+        public DelegateCommand DeleteFromFriendsButtonCommand => _deleteFromFriendsButtonCommand ??= new DelegateCommand(DeleteFromFriendsButtonCommand_Execute);
+
+        private async void DeleteFromFriendsButtonCommand_Execute()
+        {
+            using(var deleteFromFriendsRequest = await RequestsFactory.CreateRequestAsync<DeleteFromFriendsRequest, User>(_currentUser, _addingUser))
+            {
+                var response = await deleteFromFriendsRequest.SendRequestAsync();
+                if(response.ResponseCode != 200)
+                {
+                    MessageBox.Show(response.ToString());
+                }
+            }
+        }
 
         private async void AddInFriendsButtonCommand_Execute()
         {
@@ -56,7 +70,7 @@ namespace Messager.ViewModels
                 var response = await addInFriendsRequest.SendRequestAsync();
                 if(response.ResponseCode != 200)
                 {
-                    MessageBox.Show(response.ErrorMessage);
+                    MessageBox.Show(response.ToString());
                 }
             }
         }

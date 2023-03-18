@@ -18,7 +18,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media.Imaging;
-using Windows.Storage.Streams;
+
 
 namespace Messager.ViewModels
 {
@@ -116,11 +116,70 @@ namespace Messager.ViewModels
             }
         }
 
+
+
+
+        private string _tempTBlockText;
+        public string TempTBlockText
+        {
+            get => _tempTBlockText;
+            set
+            {
+                _tempTBlockText = value;
+                RaisePropertyChanged();
+            }
+        }
+        private string _tempTBoxText;
+        public string TempTBoxText
+        {
+            get => _tempTBoxText;
+            set
+            {
+                _tempTBoxText = value;
+                RaisePropertyChanged();
+            }
+        }
+
+
+
+
         public event Action SearchedStringChanged;
 
         private DelegateCommand _changeImageCommand;
         public DelegateCommand ChangeImageCommand => _changeImageCommand ??= new DelegateCommand(ChangeImageCommand_Execute);
 
+        private DelegateCommand _sendMessageCommand;
+        public DelegateCommand SendMessageCommand => _sendMessageCommand ??= new DelegateCommand(SendMessageCommand_Execute);
+
+        private async Task ReceiveMessageAsync()
+        {
+            using(var request = await RequestsFactory.CreateRequestAsync<ReceiveMessageRequest, User>(_currentUser, SelectedChat))
+            {
+                var response = await request.SendRequestAsync();
+                if(response.ResponseCode == 200)
+                {
+
+                }
+            }
+        }
+        private async void SendMessageCommand_Execute()
+        {
+            Message message = new Message()
+            {
+                Id = Guid.NewGuid(),
+                From = _currentUser.Id,
+                To = SelectedChat.Id,
+                Information = TempTBoxText
+            };
+            using (var request = await RequestsFactory.CreateRequestAsync<SendMessageRequest, Message>(message))
+            {
+                var response = await request.SendRequestAsync();
+                if(response.ResponseCode == 200)
+                {
+                    TempTBoxText = "";
+                }
+            }
+        }
         private async void ChangeImageCommand_Execute()
         {
             OpenFileDialog dlg = new OpenFileDialog();
@@ -134,7 +193,6 @@ namespace Messager.ViewModels
                 string filename = dlg.FileName;
                 Image = BitmapHelper.BitmapToBitmapImage(new Bitmap(filename));
 
-                //TODO: както сериализовать BitmapImage
                 ImageConverter converter = new ImageConverter();
                 byte[] bTemp = (byte[])converter.ConvertTo(BitmapHelper.FromBitmapImagetoBitmap(Image), typeof(byte[]));
                 _currentUser.Image = bTemp;

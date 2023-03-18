@@ -12,8 +12,8 @@ using ServerMessager.Models;
 namespace ServerMessager.Migrations
 {
     [DbContext(typeof(AppDBContext))]
-    [Migration("20230307195255_AddUsers")]
-    partial class AddUsers
+    [Migration("20230317122205_AddedInFriendsAndUsers")]
+    partial class AddedInFriendsAndUsers
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -25,11 +25,36 @@ namespace ServerMessager.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("ServerMessager.Models.Entitys.AddedInFriends", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("User1")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("User2")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("AddedInFriends");
+                });
+
             modelBuilder.Entity("ServerMessager.Models.Entitys.User", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<byte[]>("Image")
+                        .IsRequired()
+                        .HasColumnType("varbinary(max)");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -38,6 +63,9 @@ namespace ServerMessager.Migrations
                     b.Property<string>("Password")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 

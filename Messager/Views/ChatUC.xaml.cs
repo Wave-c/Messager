@@ -1,5 +1,4 @@
-﻿using Messager.Models.Entitys;
-using Messager.ViewModels;
+﻿using Messager.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,14 +17,14 @@ using System.Windows.Shapes;
 namespace Messager.Views
 {
     /// <summary>
-    /// Логика взаимодействия для MessageUC.xaml
+    /// Логика взаимодействия для ChatUC.xaml
     /// </summary>
-    public partial class MessageUC : UserControl
+    public partial class ChatUC : UserControl
     {
-        public MessageUC(Message message)
+        public ChatUC()
         {
             InitializeComponent();
-            DataContext = new MessageUCViewModel(message);
+            DataContext = new ChatUCViewModel();
         }
     }
 }

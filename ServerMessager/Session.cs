@@ -62,6 +62,89 @@ namespace ServerMessager
                     command.Entitys.Add(JsonSerializer.Deserialize<User>(message.Split("\r\n")[1]));
                     await SetUserImageAsync(command);
                     break;
+                case "DeleteFromFriends":
+                    command.Entitys.Add(JsonSerializer.Deserialize<User>(message.Split("\r\n")[1]));
+                    command.Entitys.Add(JsonSerializer.Deserialize<User>(message.Split("\r\n")[2]));
+                    await DeleteFromFriendsAsync(command);
+                    break;
+                case "SendMessage":
+                    command.Entitys.Add(JsonSerializer.Deserialize<Message>(message.Split("\r\n")[1]));
+                    await SendMessageAsync(command);
+                    break;
+                case "ReceiveMessage":
+                    command.Entitys.Add(JsonSerializer.Deserialize<User>(message.Split("\r\n")[1]));
+                    command.Entitys.Add(JsonSerializer.Deserialize<User>(message.Split("\r\n")[2]));
+                    await ReceiveMessageAsync(command);
+                    break;
+            }
+        }
+
+        public async Task ReceiveMessageAsync(Command command)
+        {
+            using (var dbContext = new AppDBContext())
+            {
+                List<Message> messages = new List<Message>();
+                messages.AddRange(dbContext.Messages.Where(x => x.From == command.Entitys[0].Id && x.To == command.Entitys[1].Id));
+                messages.AddRange(dbContext.Messages.Where(x => x.From == command.Entitys[1].Id && x.To == command.Entitys[0].Id));
+
+                if(messages.Count == 0)
+                {
+                    var response = new Response()
+                    {
+                        ResponseCode = 406,
+                        ErrorMessage = "You dont have messages with this user"
+                    };
+                    await SendReceiveMessage.SendMessageAsync(Client, JsonSerializer.Serialize(response));
+                }
+                else
+                {
+                    var response = new Response()
+                    {
+                        ResponseCode = 200,
+                        ResponseObj = JsonSerializer.Serialize(messages)
+                    };
+                    await SendReceiveMessage.SendMessageAsync(Client, JsonSerializer.Serialize(response));
+                }
+                
+            }
+        }
+
+        public async Task SendMessageAsync(Command command)
+        {
+            try
+            {
+
+                using (var dbContext = new AppDBContext())
+                {
+                    await dbContext.Messages.AddAsync((Message)command.Entitys[0]);
+                    await dbContext.SaveChangesAsync();
+                    var response = new Response()
+                    {
+                        ResponseCode = 200
+                    };
+                    await SendReceiveMessage.SendMessageAsync(Client, JsonSerializer.Serialize(response));
+                }
+
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
+        }
+
+        public async Task DeleteFromFriendsAsync(Command command)
+        {
+            using (var dbContext = new AppDBContext())
+            {
+                List<AddedInFriends> addedInFriends = dbContext.AddedInFriends.Where(x => command.Entitys[0].Id == x.User1
+                    || command.Entitys[0].Id == x.User2).ToList();
+                dbContext.AddedInFriends.RemoveRange(addedInFriends);
+                await dbContext.SaveChangesAsync();
+                var response = new Response()
+                {
+                    ResponseCode = 200
+                };
+                await SendReceiveMessage.SendMessageAsync(Client, JsonSerializer.Serialize(response));
             }
         }
 
@@ -81,28 +164,28 @@ namespace ServerMessager
 
         public async Task GetUserImageAsync(Command command)
         {
-            //using(var dbContext = new AppDBContext())
-            //{
-            //    //string image = dbContext.Users.Where(x => x.Id == command.Entitys[0].Id).First().Image;
-            //    if(!string.IsNullOrWhiteSpace(image))
-            //    {
-            //        var response = new Response()
-            //        {
-            //            ResponseCode = 200,
-            //            ResponseObj = image
-            //        };
-            //        await SendReceiveMessage.SendMessageAsync(Client, JsonSerializer.Serialize(response));
-            //    }
-            //    else
-            //    {
-            //        var response = new Response()
-            //        {
-            //            ResponseCode = 404,
-            //            ErrorMessage = "This user dont have photo"
-            //        };
-            //        await SendReceiveMessage.SendMessageAsync(Client, JsonSerializer.Serialize(response));
-            //    }
-            //}
+            using (var dbContext = new AppDBContext())
+            {
+                byte[] image = dbContext.Users.Where(x => x.Id == command.Entitys[0].Id).First().Image;
+                if (image.Length != 0)
+                {
+                    var response = new Response()
+                    {
+                        ResponseCode = 200,
+                        ResponseObj = Convert.ToBase64String(image)
+                    };
+                    await SendReceiveMessage.SendMessageAsync(Client, JsonSerializer.Serialize(response));
+                }
+                else
+                {
+                    var response = new Response()
+                    {
+                        ResponseCode = 404,
+                        ErrorMessage = "This user dont have photo"
+                    };
+                    await SendReceiveMessage.SendMessageAsync(Client, JsonSerializer.Serialize(response));
+                }
+            }
         }
 
         public async Task AddInFriendsAsync(Command command)
@@ -151,24 +234,36 @@ namespace ServerMessager
         {
             using(var dbContext = new AppDBContext())
             {
-                if (dbContext.Users.Where(x => x.Name == ((User)command.Entitys[0]).Name).FirstOrDefault() == null)
+                try
                 {
-                    dbContext.Users.Add((User)command.Entitys[0]);
-                    dbContext.SaveChanges();
-                    Response response = new Response()
+                    if (dbContext.Users.Where(x => x.Name == ((User)command.Entitys[0]).Name).FirstOrDefault() == null)
                     {
-                        ResponseCode = 200
-                    };
-                    await SendReceiveMessage.SendMessageAsync(Client, JsonSerializer.Serialize(response));
+
+                        User addedUser = (User)command.Entitys[0];
+                        addedUser.Email = "";
+                        addedUser.Image = Encoding.UTF8.GetBytes("");
+
+                        dbContext.Users.Add(addedUser);
+                        await dbContext.SaveChangesAsync();
+                        Response response = new Response()
+                        {
+                            ResponseCode = 200
+                        };
+                        await SendReceiveMessage.SendMessageAsync(Client, JsonSerializer.Serialize(response));
+                    }
+                    else
+                    {
+                        Response response = new Response()
+                        {
+                            ErrorMessage = "Error: Such user already exists",
+                            ResponseCode = 401
+                        };
+                        await SendReceiveMessage.SendMessageAsync(Client, JsonSerializer.Serialize(response));
+                    }
                 }
-                else
+                catch (Exception ex)
                 {
-                    Response response = new Response()
-                    {
-                        ErrorMessage = "Error: Such user already exists",
-                        ResponseCode = 401
-                    };
-                    await SendReceiveMessage.SendMessageAsync(Client, JsonSerializer.Serialize(response));
+                    Console.WriteLine(ex.Message);
                 }
             }
         }

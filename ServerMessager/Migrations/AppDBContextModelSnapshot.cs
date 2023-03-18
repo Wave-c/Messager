@@ -39,6 +39,27 @@ namespace ServerMessager.Migrations
                     b.ToTable("AddedInFriends");
                 });
 
+            modelBuilder.Entity("ServerMessager.Models.Entitys.Message", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("From")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Information")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("To")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Messages");
+                });
+
             modelBuilder.Entity("ServerMessager.Models.Entitys.User", b =>
                 {
                     b.Property<Guid>("Id")
@@ -49,9 +70,9 @@ namespace ServerMessager.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Image")
+                    b.Property<byte[]>("Image")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("varbinary(max)");
 
                     b.Property<string>("Name")
                         .IsRequired()

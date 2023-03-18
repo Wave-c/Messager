@@ -24,6 +24,7 @@
             </Ellipse.Fill>
         </Ellipse>
         <TextBlock Grid.Column="1" Text="{Binding Name}"/>
-        <Button Grid.Row="1" Grid.ColumnSpan="2" Height="50" Width="100" Content="Add in friends" Command="{Binding AddInFriendsButtonCommand}"/>
+        <Button Grid.Column="0" Grid.Row="1" Height="50" Width="100" Content="Add in friends" Command="{Binding AddInFriendsButtonCommand}"/>
+        <Button Grid.Column="1" Grid.Row="1" Height="50" Width="100" Content="Delete from friends" Command="{Binding DeleteFromFriendsButtonCommand}"/>
     </Grid>
 </Window>

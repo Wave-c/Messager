@@ -12,8 +12,8 @@ using ServerMessager.Models;
 namespace ServerMessager.Migrations
 {
     [DbContext(typeof(AppDBContext))]
-    [Migration("20230311165234_StatusFromUser")]
-    partial class StatusFromUser
+    [Migration("20230317150832_Massages")]
+    partial class Massages
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -42,11 +42,44 @@ namespace ServerMessager.Migrations
                     b.ToTable("AddedInFriends");
                 });
 
+            modelBuilder.Entity("ServerMessager.Models.Entitys.Message", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("FromId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Information")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("ToId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FromId");
+
+                    b.HasIndex("ToId");
+
+                    b.ToTable("Messages");
+                });
+
             modelBuilder.Entity("ServerMessager.Models.Entitys.User", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<byte[]>("Image")
+                        .IsRequired()
+                        .HasColumnType("varbinary(max)");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -62,6 +95,25 @@ namespace ServerMessager.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("ServerMessager.Models.Entitys.Message", b =>
+                {
+                    b.HasOne("ServerMessager.Models.Entitys.User", "From")
+                        .WithMany()
+                        .HasForeignKey("FromId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ServerMessager.Models.Entitys.User", "To")
+                        .WithMany()
+                        .HasForeignKey("ToId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("From");
+
+                    b.Navigation("To");
                 });
 #pragma warning restore 612, 618
         }

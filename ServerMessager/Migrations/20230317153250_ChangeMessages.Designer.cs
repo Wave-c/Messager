@@ -12,8 +12,8 @@ using ServerMessager.Models;
 namespace ServerMessager.Migrations
 {
     [DbContext(typeof(AppDBContext))]
-    [Migration("20230314115800_UserImage")]
-    partial class UserImage
+    [Migration("20230317153250_ChangeMessages")]
+    partial class ChangeMessages
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -42,15 +42,40 @@ namespace ServerMessager.Migrations
                     b.ToTable("AddedInFriends");
                 });
 
+            modelBuilder.Entity("ServerMessager.Models.Entitys.Message", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("From")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Information")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("To")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Messages");
+                });
+
             modelBuilder.Entity("ServerMessager.Models.Entitys.User", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("Image")
+                    b.Property<string>("Email")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<byte[]>("Image")
+                        .IsRequired()
+                        .HasColumnType("varbinary(max)");
 
                     b.Property<string>("Name")
                         .IsRequired()

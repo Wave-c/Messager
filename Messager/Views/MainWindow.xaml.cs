@@ -44,7 +44,8 @@ namespace Messager.Views
         private async void Window_Loaded(object sender, RoutedEventArgs e)
         {
             await ((MainWindowViewModel)DataContext).UpdateChatsAsync();
-            ((MainWindowViewModel)DataContext).Image = await BitmapHelper.GetUserImageAsync(_currentUser);
+            var temp = await BitmapHelper.GetUserImageAsync(_currentUser);
+            ((MainWindowViewModel)DataContext).Image = temp;
         }
     }
 }

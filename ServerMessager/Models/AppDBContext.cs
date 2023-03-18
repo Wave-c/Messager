@@ -13,6 +13,7 @@ namespace ServerMessager.Models
     {
         public DbSet<User> Users { get; set; }
         public DbSet<AddedInFriends> AddedInFriends { get; set; }
+        public DbSet<Message> Messages { get; set; }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             base.OnConfiguring(optionsBuilder);

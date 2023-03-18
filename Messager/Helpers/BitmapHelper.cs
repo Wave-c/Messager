@@ -54,11 +54,20 @@ namespace Messager.Helpers
                 Response response = await request.SendRequestAsync();
                 if (response.ResponseCode == 200)
                 {
-                    //Bitmap img2;
-                    //using (var ms = new MemoryStream( response.ResponseObj))
-                    //{
-                    //    img2 = new Bitmap(ms);
-                    //}
+                    Bitmap img2;
+                    using (var ms = new MemoryStream(Convert.FromBase64String(response.ResponseObj)))
+                    {
+                        try
+                        {
+                            img2 = new Bitmap(ms);
+                            return BitmapToBitmapImage(img2);
+                        }
+                        catch(Exception ex)
+                        {
+                            MessageBox.Show(ex.Message);
+                        }
+                        
+                    }
                 }
                 if (response.ResponseCode == 404)
                 {

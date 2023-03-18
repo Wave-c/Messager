@@ -34,10 +34,46 @@ namespace Messager.Helpers
                     return await CreateGetUserImageRequest(entity[0] as User);
                 case nameof(SetUserImageRequest):
                     return await CreateSetUserImageRequest(entity[0] as User);
+                case nameof(DeleteFromFriendsRequest):
+                    return await CreateDeleteFromFriendsRequest(entity[0] as User, entity[1] as User);
+                case nameof(SendMessageRequest):
+                    return await CreateSendMessageFromFriendsRequest(entity[0] as Message);
+                case nameof(ReceiveMessageRequest):
+                    return await CreateReceiveMessageRequest(entity[0] as User, entity[1] as User);
             }
             throw new FormatException();
         }
 
+        private static async Task<ReceiveMessageRequest> CreateReceiveMessageRequest(User from, User to)
+        {
+            var newReceiveMessageRequest = new ReceiveMessageRequest()
+            {
+                Client = new TcpClient(),
+                Message = $"ReceiveMessage\r\n {JsonSerializer.Serialize(from)} \r\n {JsonSerializer.Serialize(to)}"
+            };
+            await newReceiveMessageRequest.Client.ConnectAsync(IPAddress.Parse("127.0.0.1"), 8888);
+            return newReceiveMessageRequest;
+        }
+        private static async Task<SendMessageRequest> CreateSendMessageFromFriendsRequest(Message message)
+        {
+            var newSendMessageRequest = new SendMessageRequest()
+            {
+                Client = new TcpClient(),
+                Message = $"SendMessage\r\n {JsonSerializer.Serialize(message)}"
+            };
+            await newSendMessageRequest.Client.ConnectAsync(IPAddress.Parse("127.0.0.1"), 8888);
+            return newSendMessageRequest;
+        }
+        private static async Task<DeleteFromFriendsRequest> CreateDeleteFromFriendsRequest(User user, User deletingUser)
+        {
+            var newDeleteInFriendsRequest = new DeleteFromFriendsRequest()
+            {
+                Client = new TcpClient(),
+                Message = $"DeleteFromFriends\r\n {JsonSerializer.Serialize(user)} \r\n {JsonSerializer.Serialize(deletingUser)}"
+            };
+            await newDeleteInFriendsRequest.Client.ConnectAsync(IPAddress.Parse("127.0.0.1"), 8888);
+            return newDeleteInFriendsRequest;
+        }
         private static async Task<SetUserImageRequest> CreateSetUserImageRequest(User user)
         {
             var newSetUserImageRequest = new SetUserImageRequest()
